@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Trash2, ExternalLink, AlertTriangle, CheckCircle, Clock, Utensils, Sparkles, Filter } from 'lucide-react';
+import { PlusCircle, Trash2, ExternalLink, AlertTriangle, CheckCircle, Clock, Utensils, Sparkles, Filter, X } from 'lucide-react';
 import { getExpiryDetails } from '../utils/dateUtils';
 import ExpiryBadge from '../components/ExpiryBadge';
 
@@ -8,6 +8,7 @@ const LOCAL_STORAGE_KEY = 'feedforward_kitchen_items';
 const GOOGLE_FORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSeYr2_U-ZaaQVVYfzTWX3bKJz8NH2wkraxUgd3-Twqjf1Y06g/viewform?usp=pp_url';
 
 export default function MyKitchen() {
+  const [isFormOpen, setIsFormOpen] = useState(true);
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -133,7 +134,7 @@ export default function MyKitchen() {
         {/* Expiring Alert Pill */}
         {expiringSoonCount > 0 ? (
           <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 shrink-0">
-            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 animate-bounce" />
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Attention Needed</p>
               <p className="text-sm font-bold">
@@ -154,81 +155,107 @@ export default function MyKitchen() {
 
       {/* Main Grid: Add Item Form & Items List */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Form Column (5 cols) */}
-        <div className="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs sticky top-20">
-          <h2 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
-            <PlusCircle className="w-5 h-5 text-emerald-600" />
-            Log Food Item
-          </h2>
-          <p className="text-xs text-slate-500 mb-5">
-            Add any perishable or pantry item to start tracking its expiry.
-          </p>
-
-          <form onSubmit={handleAddItem} className="space-y-4">
-            {/* Item Name */}
-            <div>
-              <label htmlFor="itemName" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Item Name <span className="text-rose-500">*</span>
-              </label>
-              <input
-                id="itemName"
-                type="text"
-                required
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                placeholder="e.g. Sliced Bread, Greek Yogurt, Apples"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all text-sm"
-              />
+        {/* Form Column - Collapsible */}
+        {isFormOpen ? (
+          <div className="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs relative lg:sticky lg:top-24 lg:self-start z-10 animate-fade-in">
+            {/* Header with Title and Top-Right Close (X) Button */}
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <PlusCircle className="w-5 h-5 text-emerald-600" />
+                Log Food Item
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsFormOpen(false)}
+                aria-label="Close form"
+                title="Close form"
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-
-            {/* Quantity */}
-            <div>
-              <label htmlFor="quantity" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Quantity <span className="text-rose-500">*</span>
-              </label>
-              <input
-                id="quantity"
-                type="text"
-                required
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="e.g. 2 loaves, 500g, 3 packs"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all text-sm"
-              />
-            </div>
-
-            {/* Expiry Date */}
-            <div>
-              <label htmlFor="expiryDate" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Expiry Date <span className="text-rose-500">*</span>
-              </label>
-              <input
-                id="expiryDate"
-                type="date"
-                required
-                value={expiryDate}
-                onChange={(e) => setExpiryDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all text-sm"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full mt-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Add to Kitchen
-            </button>
-          </form>
-
-          {/* Tips Info Box */}
-          <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 flex items-start gap-2">
-            <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-            <p>
-              Items with <strong>≤ 2 days left</strong> are automatically highlighted. Click "Give this away" anytime to share with your neighbors!
+            <p className="text-xs text-slate-500 mb-5">
+              Add any perishable or pantry item to start tracking its expiry.
             </p>
+
+            <form onSubmit={handleAddItem} className="space-y-4">
+              {/* Item Name */}
+              <div>
+                <label htmlFor="itemName" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Item Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  id="itemName"
+                  type="text"
+                  required
+                  value={itemName}
+                  onChange={(e) => setItemName(e.target.value)}
+                  placeholder="e.g. Sliced Bread, Greek Yogurt, Apples"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all text-sm"
+                />
+              </div>
+
+              {/* Quantity */}
+              <div>
+                <label htmlFor="quantity" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Quantity <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  id="quantity"
+                  type="text"
+                  required
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  placeholder="e.g. 2 loaves, 500g, 3 packs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all text-sm"
+                />
+              </div>
+
+              {/* Expiry Date */}
+              <div>
+                <label htmlFor="expiryDate" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Expiry Date <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  id="expiryDate"
+                  type="date"
+                  required
+                  value={expiryDate}
+                  onChange={(e) => setExpiryDate(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all text-sm"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Add to Kitchen
+              </button>
+            </form>
+
+            {/* Tips Info Box */}
+            <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <p>
+                Items with <strong>≤ 2 days left</strong> are automatically highlighted. Click "Give this away" anytime to share with your neighbors!
+              </p>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Collapsed Reopen Button */
+          <div className="lg:col-span-5 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs relative lg:sticky lg:top-24 lg:self-start z-10 animate-fade-in">
+            <button
+              type="button"
+              onClick={() => setIsFormOpen(true)}
+              className="w-full py-3 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-sm border border-emerald-200 transition-all flex items-center justify-center gap-2 group shadow-xs"
+            >
+              <PlusCircle className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+              <span>+ Log a new item</span>
+            </button>
+          </div>
+        )}
 
         {/* List Column (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
@@ -294,7 +321,7 @@ export default function MyKitchen() {
                 return (
                   <div
                     key={item.id}
-                    className={`bg-white rounded-2xl p-4 sm:p-5 border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                    className={`relative isolate overflow-hidden bg-white rounded-2xl p-4 sm:p-5 border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                       isUrgent
                         ? 'border-amber-300/80 bg-amber-50/20 shadow-xs ring-1 ring-amber-300/40'
                         : 'border-slate-200 shadow-xs hover:border-emerald-200'

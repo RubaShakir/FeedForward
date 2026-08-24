@@ -25,12 +25,13 @@ export default function ExpiryBadge({ expiryDate, className = '' }) {
 
   if (details.isExpiringSoon) {
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 animate-pulse ${className}`}>
-        <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 shrink-0 ${className}`}>
+        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
         {details.label}
       </span>
     );
   }
+
 
   if (details.status === 'moderate') {
     return (
